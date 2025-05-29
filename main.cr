@@ -18,20 +18,20 @@ users = [
 ]
 
 server = HTTP::Server.new do |context|
-    request = context.request
     response = context.response
-
-    case request.path
-    when "/users"
-        response.content_type = "application/json"
-        response.print users.to_json
-    else
-        response.status_code = 404
-        response.print "Not Found"
-    end
-end
-
-server.bind_tcp "0.0.0.0", 8080
-puts "Server running on http://localhost:8080"
-server.listen
+    reponse.context_type = "application/json"
+    case context.request.method
+    when "GET"
+        case context.request.path
+        when "/"
+            reponse.print(users.to_join)
+        when %r{^/users/(\d+)$}
+            id = context.request.path.split("/").last.to_i
+            user = users.find { |u| u.id == id}
+            if user 
+                reponse.print(user.to_json)
+            else
+                response.status_code = 404
+                response.print({"message" => "User not found"}.to_json)
+    
 
