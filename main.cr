@@ -19,19 +19,44 @@ users = [
 
 server = HTTP::Server.new do |context|
     response = context.response
-    reponse.context_type = "application/json"
+    response.context_type = "application/json"
     case context.request.method
     when "GET"
         case context.request.path
         when "/"
-            reponse.print(users.to_join)
+            response.print(users.to_json)
         when %r{^/users/(\d+)$}
             id = context.request.path.split("/").last.to_i
             user = users.find { |u| u.id == id}
             if user 
-                reponse.print(user.to_json)
+                response.print(user.to_json)
             else
                 response.status_code = 404
                 response.print({"message" => "User not found"}.to_json)
-    
+            end
+        else
+            response.status_code = 404
+            response.print({"message" => "Not Found"}.to_json)
+        end
+    when "POST"
+        case context.request.path
+        when "/users"
+            begin
+              user_json = JSON.parse(context.request.body.try(&.gets_to_end) || "{}")
+              user = User.new(
+                users.size + 1,
+                user_json["name"].to_s,
+                user_json["email"].to_s
+              )
+              users << user
+              response.status_code = 201
+              response.print(user.to_json)
+            rescue ex
+              response.status_code = 400
+              response.print({"message" => "Invalid request: #{ex.message}"}.to_json)
+            end 
+        else
+            response.status_code = 404
+            response.print({"message" => "Not Found"}.to_json)
+        end            
 
