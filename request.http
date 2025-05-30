@@ -1,0 +1,13 @@
+GET http://localhost:8080/
+GET http://localhost:8080/users/1
+POST http://localhost:8080/users
+{
+    "name": "Amit Jha",
+    "email": "amit@jha.com"
+}
+PUT http://localhost:8080/users/1
+{
+    "name": "Atul Kumar",
+    "email": "atul@kumar.com"
+}
+DELETE http://localhost:8080/users/1
