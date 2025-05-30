@@ -58,5 +58,26 @@ server = HTTP::Server.new do |context|
         else
             response.status_code = 404
             response.print({"message" => "Not Found"}.to_json)
-        end            
+        end
+    when "PUT"
+        case context.request.path
+        when %r{^/users/(\d+)$}
+            begin
+                id = context.request.path.split("/").last.to_i
+                user_json = JSON.parse(context.request.body.try(&.gets_to_end) || "{}")
+                user = users.find { |u| u.id == id }
+                if user
+                    user.name = user_json["name"].to_s if user_json["name"]
+                    user.email = user_json["email"].to_s if user_json["email"]
+                    response.print(user.to_json)
+                else
+                    response.status_code = 404
+                    response.print({"message" => "Invalid request: #{ex.message}"}.to_json)
+                end
+            else
+                response.status_code = 404
+                response.print({"message" => "Not found"}.to_json)
+            end
+        
+
 
