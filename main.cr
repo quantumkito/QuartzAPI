@@ -72,12 +72,17 @@ server = HTTP::Server.new do |context|
                     response.print(user.to_json)
                 else
                     response.status_code = 404
-                    response.print({"message" => "Invalid request: #{ex.message}"}.to_json)
+                    response.print({"message" => "User not found"}.to_json)
                 end
-            else
-                response.status_code = 404
-                response.print({"message" => "Not found"}.to_json)
+            rescue ex
+                response.status_code = 400
+                response.print({"message" => "Invalid request: #{ex.message}"}.to_json)
             end
+        else
+            response.status_code = 404
+            response.print({"message" => "Not found"}.to_json)
+        end
+        
         
 
 
