@@ -82,6 +82,36 @@ server = HTTP::Server.new do |context|
             response.status_code = 404
             response.print({"message" => "Not found"}.to_json)
         end
+    when "DELETE"
+        case context.request.path
+        when %r{^/users/(\d+)$}
+            begin
+                id = context.request.path.split("/").last.to_i
+                index = users.index { |u| u.id == id }
+                if index
+                    users.delete_at(index)
+                    response.print({"message" => "User deleted successfully"}.to_json)
+                else
+                    response.status_code = 404
+                    response.print({"message" => "User not found"}.to_json)
+                end
+            rescue ex
+                response.status_code = 400
+                response.print({"message" => "Invalid request: #{ex.message}"}.to_json)
+            end
+        else
+            response.status_code = 404
+            response.print({"message" => "Not found"}.to_json)
+        end
+    else
+        response.status_code = 405
+        response.print({"message" => "Method not allowed"}.to_json)
+    end
+end
+
+address = server.bind_tcp 8080
+puts "Listening on http://#{address}"
+server.listen
         
         
 
